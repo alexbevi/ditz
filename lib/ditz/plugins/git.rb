@@ -41,7 +41,7 @@ class Issue
     output = filters.map do |f|
       `git log --pretty=format:\"%aD\t%an <%ae>\t%h\t%s\" #{f} 2> /dev/null`
     end.join
-
+    output.force_encoding("UTF-8")
     @git_commits = output.split(/\n/).map { |l| l.split("\t") }.
       map { |date, email, hash, msg| [Time.parse(date).utc, email, hash, msg] }
   end
