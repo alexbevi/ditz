@@ -1,0 +1,98 @@
+%html
+  %head
+    %title= h issues.first.title
+    %link{:href => "/style.css", :rel => "stylesheet", :type => "text/css",
+        :media => "all"}
+  %body
+    .main
+      - issues.each do |issue|
+        %h1= h issue.title
+        .backptr
+          %a{:href => '/'} &laquo; top page
+        .description
+          %p= h(wiki issue.desc)
+        %h2 Details
+        %table
+          %tbody
+            %tr
+              %td.attrname Id:
+              %td.attrval= issue.id
+            %tr
+              %td.attrname Type:
+              %td.attrval= issue.type
+            %tr
+              %td.attrname Creation time:
+              %td.attrval= issue.creation_time
+            %tr
+              %td.attrname Creator:
+              %td.attrval
+                %img{:src => gravatar(issue.reporter)}
+                = h issue.reporter
+            %tr
+              %td.attrname Release:
+              %td.attrval= issue.release
+            %tr
+              %td.attrname Component:
+              %td.attrval= issue.component
+            %tr
+              %td.attrname Status:
+              %td.attrval= issue.status
+            %tr
+              %td.attrname Disposition:
+              %td.attrval= issue.disposition
+            %tr
+              %td.attrname References:
+              %td.attrval
+                - issue.references.each do |ref|
+                  %a{:href => ref}= h ref
+                  %br
+        %h2 Issue log
+        %table.log
+          %tbody
+            - issue.log_events.each_with_index do |log_event, i|
+              - time, who, what, comment = log_event
+              %tr{:class => i.odd? ? 'odd-row' : 'even-row'}
+                %td.date= time
+                %td.person
+                  %img{:src => gravatar(who)}
+                  = h who
+                %td.message= what
+              %tr
+                %td.logcomment{:colspan => 3}
+                  %pre= wiki comment
+        %form{:action => "/i/#{issue.id}", :method => 'post'}
+          %input{:type => 'hidden', :name => '_method', :value => 'put'}
+          %p Comment
+          %textarea{:name => 'comment', :rows => 12, :cols => 80}
+          %p Reference
+          %input{:type => 'text', :name => 'reference', :size => 80}
+          %p Your name &amp; email
+          %input{:type => 'text', :name => 'user'}
+          %p Issue type
+          - [:bugfix, :feature, :task].each do |t|
+            %input{:type => 'radio', :id => t, :name => 'type', :value => t,
+                :checked => t == issue.type}
+            %label{:for => t}= t
+          %p Release, if any
+          %select{:name => 'release'}
+            - if issue.release.nil?
+              %option{:value => '', :selected => issue.release.nil?} No release
+            - releases.each do |r|
+              %option{:value => r.name, :selected => issue.release == r.name}= r.name
+          %p Component
+          %select{:name => 'component'}
+            - components.each do |c|
+              %option{:value => c.name, :selected => issue.component == c.name}= c.name
+          %p Status
+          %select{:name => 'status'}
+            - statuses = []
+            - st = issue.status
+            - statuses << :unstarted if st == :unstarted
+            - statuses << :paused if st == :in_progress || st == :paused
+            - statuses << :in_progress
+            - statuses << :closed
+            - statuses.each do |s|
+              %option{:value => s, :selected => issue.status == s}= s
+          %p
+            %input{:type => 'submit', :value => 'Submit issue'}
+    .footer Powered by <a href="http://ditz.rubyforge.org/">ditz</a>.

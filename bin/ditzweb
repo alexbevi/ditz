@@ -1,0 +1,208 @@
+#!/usr/bin/ruby1.9.1
+# -*- coding: utf-8 -*-
+
+self_file =
+    if File.symlink?(__FILE__)
+      require 'pathname'
+      Pathname.new(__FILE__).realpath
+    else
+      __FILE__
+    end
+$:.unshift(File.dirname(self_file) + "/../lib")
+
+require 'rubygems'
+require 'ditz'
+require 'sinatra'
+require 'haml'
+require 'digest'
+
+set :sessions, true
+set :root, File.dirname(self_file) + "/../lib"
+
+CONFIG_FN = ".ditz-config"
+
+def ditz_config_file
+  config_dir = Ditz::find_dir_containing CONFIG_FN
+  File.join(config_dir || ".", CONFIG_FN)
+end
+
+def ditz_get_storage
+  config_file = ditz_config_file
+  config = Ditz::Config.from config_file
+  config.use_editor_if_possible = false # overwrite
+  config.paginate = "never" # overwrite
+  issue_dir = Pathname.new(config.issue_dir)
+  [config, Ditz::FileStorage.new(issue_dir)]
+end
+
+CONTENT_TYPES = {:html => 'text/html', :css => 'text/css',
+    :js => 'application/javascript'}
+
+helpers do
+  include Rack::Utils; alias_method :h, :escape_html
+  def gravatar(user, s = 20)
+    email = user.split.last
+    email = email[1, email.size - 2] if email[0, 1] == '<'
+    default = '&default=identicon'
+    "http://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(email)}?s=#{s}#{default}"
+  end
+  def wiki(text)
+    text.gsub(/\{issue ([[:xdigit:]]{40})\}/, '<a href="/i/\1">\1</a>')
+  end
+end
+
+before do
+ request_uri = case request.env['REQUEST_URI']
+   when /\.css$/; :css
+   when /\.js$/; :js
+   else :html
+ end
+ content_type CONTENT_TYPES[request_uri], :charset => 'utf-8'
+end
+
+get '/' do
+  config, storage = ditz_get_storage
+  project = storage.load
+  releases = (project.unreleased_releases + [:unassigned]).inject({}) do |h,r|
+    h[r] = {
+      :title => r == :unassigned ? "Unassigned:" : "#{r.name} (#{r.status}):",
+      :issues => project.issues_for_release(r).sort_by { |i|
+          o = i.sort_order; [o[0], -o[1].to_i] }
+    }
+    h
+  end
+  haml :index, :locals => { :project => project, :releases => releases }
+end
+
+get '/i/?' do
+  config, storage = ditz_get_storage
+  project = storage.load
+  issues = project.issues
+  component = params[:c]
+  issues = issues.select { |i| i.component == component } if component != '*'
+  release = params[:r]
+  if release != '*'
+    release = nil if release.size == 0
+    issues = issues.select { |i| i.release == release }
+  end
+  query = params[:q]
+  if query
+    ignore_case = params[:i]
+    ignore_case = ignore_case.nil? ? false : ignore_case == 'on'
+    re = Regexp.new query, ignore_case
+    issues = issues.select do |i|
+      i.title =~ re || i.desc =~ re ||
+        i.log_events.map { |time, who, what, comments| comments }.join(" ") =~ re
+    end
+  end
+  issues = issues.sort_by { |i| o = i.sort_order; [o[0], -o[1].to_i] }
+  haml :issues, :locals => { :project => project, :issues => issues }
+end
+
+get '/i/new' do
+  config, storage = ditz_get_storage
+  project = storage.load
+  releases = project.releases
+  components = project.components
+  haml :new, :locals => { :releases => releases, :components => components,
+      :reference => params[:u], :summary => params[:t], :details => params[:s] }
+end
+
+get '/i/*' do |arg|
+  config, storage = ditz_get_storage
+  project = storage.load
+  releases = project.releases
+  components = project.components
+  fn = File.join '.ditz', "issue-#{arg}*.yaml"
+  issues = Dir[fn].map { |fn| Ditz::Issue.from fn }
+  haml :show, :locals => { :issues => issues, :releases => releases,
+      :components => components }
+end
+
+put '/i/*' do |arg|
+  config, storage = ditz_get_storage
+  comment = params[:comment]
+  reference = params[:reference]
+  component = params[:component]
+  status = params[:status]
+  type = params[:type]
+  user = params[:user]
+  user = config.user if user.nil? || user.size == 0
+  release = params[:release]
+  project = storage.load
+  fn = File.join '.ditz', "issue-#{arg}.yaml"
+  issue = Ditz::Issue.from fn
+  project.add_issue issue
+  if reference && reference.size > 0
+    issue.add_reference reference
+    issue.log "added reference #{issue.references.size}", user, ''
+  end
+  if type.to_sym != issue.type
+    issue.log "set type #{type} from #{issue.type}", user, ''
+    issue.type = type.to_sym
+  end
+  if release.size > 0 && release != issue.release
+    r = project.releases.find { |r| r.name == release }
+    issue.assign_to_release r, user, ''
+  end
+  if component != issue.component
+    c = project.components.find { |r| r.name == component }
+    issue.assign_to_component c, user, ''
+  end
+  if status != issue.status
+    case status
+    when 'paused'
+      issue.stop_work user, ''
+    when 'in_progress'
+      issue.start_work user, ''
+    when 'closed'
+      issue.close :fixed, user, '' # TODO :wontfix, :reorg
+    end
+  end
+  issue.log "commented", user, comment if comment.size > 0
+  storage.save project
+  redirect "/i/#{arg}"
+end
+
+# lib/ditz/operator.rb
+# lib/ditz/model.rb
+# lib/ditz/model-objects.rb
+# lib/ditz/views.rb
+# share/ditz/index.rhtml
+# share/ditz/issue_table.rhtml
+# lib/ditz/file-storage.rb
+# lib/views/index.haml
+# lib/views/show.haml
+# lib/views/new.haml
+post '/i/?' do
+  config, storage = ditz_get_storage
+  project = storage.load
+  user = params[:user] 
+  user = config.user if user.nil? || user.size == 0
+  summary = params[:summary]
+  details = params[:details] || ''
+  reference = params[:reference]
+  type = (params[:type] || :bugfix).to_sym
+  component = params[:component] ||  project.components.first.name
+  release = params[:release]
+  release = (project.releases.first.name rescue nil) if release.nil? || release.size == 0
+  issue = Ditz::Issue.create_interactively(:args => [config, project], :with => {
+      :title => summary, :desc => details, :type => type,
+      :component => component, :reporter => user, :release => release})
+  project.add_issue issue
+  issue.log "created", user, ''
+  if reference && reference.size > 0
+    issue.add_reference reference
+    issue.log "added reference #{issue.references.size}", user, ''
+  end
+  storage.save project
+  redirect "/i/#{issue.id}"
+end
+
+get '/repo/?' do
+  # TODO git support
+  puts `hg addremove`
+  puts `hg ci -m save`
+  puts `hg push`
+  redirect '/'
+end
