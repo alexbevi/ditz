@@ -161,9 +161,10 @@ EOS
           # id
           f.print ":#{issue.id} a "
           f.print case issue.type 
-                when :bugfix, :bug: "baetle:Bug"
-                when :feature: "baetle:Enhancement"
-                when :task: "wf:Task"
+                when :bug then "baetle:Bug"
+                when :bugfix then "baetle:Bug"
+                when :feature then "baetle:Enhancement"
+                when :task then "wf:Task"
                 end
           f.puts " ;"
           # title
@@ -173,10 +174,10 @@ EOS
           # state
           f.print "    wf:state baetle:" 
           f.print case issue.status
-                  when :unstarted: "New"
-                  when :in_progress: "Started"
-                  when :closed: "Closed"
-                  when :paused: "Later"
+                  when :unstarted then "New"
+                  when :in_progress then "Started"
+                  when :closed then "Closed"
+                  when :paused then "Later"
                   end
           f.puts " ;"
           # created
