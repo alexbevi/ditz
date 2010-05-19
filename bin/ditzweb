@@ -10,13 +10,13 @@ self_file =
     end
 $:.unshift(File.dirname(self_file) + "/../lib")
 
-require 'rubygems'
 require 'ditz'
 require 'sinatra'
 require 'haml'
 require 'digest'
 
 set :sessions, true
+set :stats, true
 set :root, File.dirname(self_file) + "/../lib"
 
 CONFIG_FN = ".ditz-config"
@@ -32,7 +32,8 @@ def ditz_get_storage
   config.use_editor_if_possible = false # overwrite
   config.paginate = "never" # overwrite
   issue_dir = Pathname.new(config.issue_dir)
-  [config, Ditz::FileStorage.new(issue_dir)]
+  puts issue_dir
+  return [config, Ditz::FileStorage.new(issue_dir)]
 end
 
 CONTENT_TYPES = {:html => 'text/html', :css => 'text/css',
@@ -81,7 +82,7 @@ get '/i/?' do
   component = params[:c]
   issues = issues.select { |i| i.component == component } if component != '*'
   release = params[:r]
-  if release != '*'
+  if release != '*' && !release.nil?
     release = nil if release.size == 0
     issues = issues.select { |i| i.release == release }
   end
@@ -108,13 +109,13 @@ get '/i/new' do
       :reference => params[:u], :summary => params[:t], :details => params[:s] }
 end
 
-get '/i/*' do |arg|
+get '/i/*' do
   config, storage = ditz_get_storage
   project = storage.load
   releases = project.releases
   components = project.components
-  fn = File.join '.ditz', "issue-#{arg}*.yaml"
-  issues = Dir[fn].map { |fn| Ditz::Issue.from fn }
+  iid = params[:splat].first
+  issues = project.issues.select {|i| i.id == iid }
   haml :show, :locals => { :issues => issues, :releases => releases,
       :components => components }
 end
