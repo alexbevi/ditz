@@ -1,0 +1,36 @@
+%html
+  %head
+    %title Add a new issue
+    %link{:href => "/style.css", :rel => "stylesheet", :type => "text/css",
+        :media => "screen"}
+  %body
+    .main
+      %h1 Add a new issue
+      .backptr
+        %a{:href => '/'} &laquo; top page
+      %form{:action => '/i', :method => 'post'}
+        %p Summary
+        %input{:type => 'text', :name => 'summary', :size => 80, :value => summary}
+        %p Details
+        %textarea{:name => 'details', :rows => 12, :cols => 80}= details
+        %p Reference
+        %input{:type => 'text', :name => 'reference', :size => 80, :value => reference}
+        %p Your name &amp; email
+        %input{:type => 'text', :name => 'user'}
+        %p Issue type
+        - [:bugfix, :feature, :task].each do |t|
+          %input{:type => 'radio', :id => t, :name => 'type', :value => t,
+              :checked => t == :bugfix}
+          %label{:for => t}= t
+        %p Release, if any
+        %select{:name => 'release'}
+          %option{:value => '', :selected => true} No release
+          - releases.each do |r|
+            %option{:value => r.name, :selected => false}= r.name
+        %p Component
+        %select{:name => 'component'}
+          - components.each_with_index do |c, i|
+            %option{:value => c.name, :selected => i == 0}= c.name
+        %p
+          %input{:type => 'submit', :value => 'Submit issue'}
+    .footer Powered by <a href="http://ditz.rubyforge.org/">ditz</a>.

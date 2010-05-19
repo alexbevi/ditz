@@ -6,6 +6,8 @@
   %body
     .main
       %h1== #{h project.name} Issue Tracker
+      .backptr
+        %a{:href => '/'} &laquo; top page
       %a{:href => "/i/new"} Add a new issue
       %form{:action => '/i', :method => :get}
         %select{:name => :r}
@@ -21,19 +23,16 @@
         %input#ignorecase{:type => :checkbox, :name => :i, :checked => true}
         %label{:for => :ignorecase} Ignore case
         %input{:type => :submit, :value => 'Search'}
-      %a{:href => "javascript:var%20d=document,w=window,e=w.getSelection,k=d.getSelection,x=d.selection,s=(e?e():(k)?k():(x?x.createRange().text:0)),f='http://localhost:4567/i/new',l=d.location,e=encodeURIComponent,p='?u='+e(l.href)+'&t='+e(d.title)+'&s='+e(s),u=f+p;l.href=u;"} Bookmarklet
-      - releases.each do |key,release|
-        %h2= h release[:title]
-        %table
-          %tbody
-            - release[:issues].each do |issue|
-              %tr
-                %td
-                  - icon = {:fixed => '/green-check.png', :wontfix => '/red-check.png'}
-                  - if issue.status == :closed
-                    %img{:src => icon[issue.disposition]}
-                %td.littledate= issue.creation_time.pretty_date
-                %td.issuename
-                  %img{:src => gravatar(issue.reporter)}
-                  %a{:href => "/i/#{issue.id}"}== #{h issue.title}
+      %table
+        %tbody
+          - issues.each do |issue|
+            %tr
+              %td
+                - icon = {:fixed => '/green-check.png', :wontfix => '/red-check.png'}
+                - if issue.status == :closed
+                  %img{:src => icon[issue.disposition]}
+              %td.littledate= issue.creation_time.pretty_date
+              %td.issuename
+                %img{:src => gravatar(issue.reporter)}
+                %a{:href => "/i/#{issue.id}"}== #{h issue.title}
     .footer Powered by <a href="http://ditz.rubyforge.org/">ditz</a>.

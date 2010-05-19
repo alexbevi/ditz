@@ -16,7 +16,6 @@ require 'haml'
 require 'digest'
 
 set :sessions, true
-set :stats, true
 set :root, File.dirname(self_file) + "/../lib"
 
 CONFIG_FN = ".ditz-config"
@@ -165,16 +164,7 @@ put '/i/*' do |arg|
   redirect "/i/#{arg}"
 end
 
-# lib/ditz/operator.rb
-# lib/ditz/model.rb
-# lib/ditz/model-objects.rb
-# lib/ditz/views.rb
-# share/ditz/index.rhtml
-# share/ditz/issue_table.rhtml
-# lib/ditz/file-storage.rb
-# lib/views/index.haml
-# lib/views/show.haml
-# lib/views/new.haml
+
 post '/i/?' do
   config, storage = ditz_get_storage
   project = storage.load
@@ -198,12 +188,4 @@ post '/i/?' do
   end
   storage.save project
   redirect "/i/#{issue.id}"
-end
-
-get '/repo/?' do
-  # TODO git support
-  puts `hg addremove`
-  puts `hg ci -m save`
-  puts `hg push`
-  redirect '/'
 end
