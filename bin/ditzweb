@@ -15,6 +15,7 @@ require 'sinatra'
 require 'haml'
 require 'digest'
 
+set :run, false  # do not run automatically in at_exit
 set :sessions, true
 set :root, File.dirname(self_file) + "/../lib"
 
@@ -189,3 +190,14 @@ post '/i/?' do
   storage.save project
   redirect "/i/#{issue.id}"
 end
+
+require 'optparse'
+OptionParser.new { |op|
+  op.on('-x')        {       set :lock, true }
+  op.on('-e env')    { |val| set :environment, val.to_sym }
+  op.on('-s server') { |val| set :server, val }
+  op.on('-p port')   { |val| set :port, val.to_i }
+  op.on('-o addr')   { |val| set :bind, val }
+}.parse!(ARGV.dup)
+
+Sinatra::Application.run!
