@@ -10,7 +10,7 @@ _ditz()
 
     if [ $COMP_CWORD -eq 1 ]; then
 	# no command yet, show all commands
-	COMPREPLY=( $( compgen -W "$(ditz --commands)" -- $cur ) )
+	COMPREPLY=( $( compgen -W "$(ditz --commands 2>/dev/null </dev/null)" -- $cur ) )
 
     else
 	unset COMP_WORDS[COMP_CWORD]  # remove last
@@ -31,7 +31,7 @@ _ditz()
 	fi
 	
 	# let ditz parse the commandline and print available completions, then append the options form above
-	COMPREPLY=( $( compgen -W "$(ditz "${COMP_WORDS[@]}" '<options>' 2>/dev/null) $options" -- $cur ) )
+	COMPREPLY=( $( compgen -W "$(ditz "${COMP_WORDS[@]}" '<options>' 2>/dev/null </dev/null) $options" -- $cur ) )
     fi 
 }
 
