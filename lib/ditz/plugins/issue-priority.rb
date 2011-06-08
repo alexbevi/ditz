@@ -16,9 +16,11 @@
 module Ditz
 
 class Issue
-  def self.get_allowed_priorities
-    return ["P1", "P2", "P3", "P4", "P5"]
-  end
+  class << self
+    def get_allowed_priorities
+      return ["P1", "P2", "P3", "P4", "P5"]
+    end
+  end 
 
   field :priority, :multi => false, :default => "P3", :prompt => "Specify a priority (#{Issue.get_allowed_priorities * ","})"
 
@@ -85,6 +87,19 @@ class Operator
     rescue Ditz::ModelError => e
       puts "Error: Issue #{e}"
       return
+    end
+  end
+
+  class <<self
+    alias_method :_priority_orig_die_with_completions, :die_with_completions
+    def die_with_completions project, method, spec
+      case spec
+      when :priority
+	puts Issue.get_allowed_priorities()
+	exit 0
+      else
+	_priority_orig_die_with_completions(project, method, spec)
+      end
     end
   end
 

@@ -5,8 +5,8 @@ type: :feature
 component: ditz
 release: 
 reporter: Jon Schewe <jpschewe@mtu.net>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :fixed
 creation_time: 2011-06-06 19:44:47.907860 Z
 references: []
 
@@ -16,6 +16,18 @@ log_events:
   - Jon Schewe <jpschewe@mtu.net>
   - created
   - ""
+- - 2011-06-08 03:10:00.163078 Z
+  - Jon Schewe <jpschewe@mtu.net>
+  - issue claimed
+  - ""
+- - 2011-06-08 03:10:05.867098 Z
+  - Jon Schewe <jpschewe@mtu.net>
+  - changed status from unstarted to in_progress
+  - ""
+- - 2011-06-08 03:10:50.194061 Z
+  - Jon Schewe <jpschewe@mtu.net>
+  - closed with disposition fixed
+  - Added wrapper method for die_with_completions
 git_branch: 
-claimer: 
+claimer: Jon Schewe <jpschewe@mtu.net>
 priority: P3
