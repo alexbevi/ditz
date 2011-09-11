@@ -8,8 +8,8 @@ type: :feature
 component: ditz
 release: "0.6"
 reporter: Matt Katz <ditz@morelightmorelight.com>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :fixed
 creation_time: 2011-09-11 18:11:40.145003 Z
 references: []
 
@@ -19,5 +19,9 @@ log_events:
   - Matt Katz <ditz@morelightmorelight.com>
   - created
   - ""
+- - 2011-09-11 18:35:19.724940 Z
+  - Matt Katz <ditz@morelightmorelight.com>
+  - closed with disposition fixed
+  - "works - just specify a url in project.yaml for css: \"style.css\" or somesuch and you'll be good to go."
 git_branch: 
 claimer: 
