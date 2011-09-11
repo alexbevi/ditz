@@ -5,8 +5,8 @@ type: :feature
 component: ditz
 release: 
 reporter: William Morgan <wmorgan-ditz@masanjin.net>
-status: :unstarted
-disposition: 
+status: :closed
+disposition: :fixed
 creation_time: 2008-07-28 18:49:36.266703 Z
 references: []
 
@@ -28,5 +28,22 @@ log_events:
   - William Morgan <wmorgan-ditz@masanjin.net>
   - unassigned from release 0.6
   - ""
+- - 2011-06-05 23:54:52.122956 Z
+  - Jon Schewe <jpschewe@mtu.net>
+  - issue claimed
+  - Started hacking on this.
+- - 2011-06-06 00:01:03.373026 Z
+  - Jon Schewe <jpschewe@mtu.net>
+  - changed status from unstarted to in_progress
+  - ""
+- - 2011-06-06 00:01:51.523986 Z
+  - Jon Schewe <jpschewe@mtu.net>
+  - set issue priority
+  - ""
+- - 2011-06-06 00:05:55.439952 Z
+  - Jon Schewe <jpschewe@mtu.net>
+  - closed with disposition fixed
+  - I've implemented a version that does what I need. I suspect this will meet most users needs as well.
 git_branch: 
-claimer: 
+claimer: Jon Schewe <jpschewe@mtu.net>
+priority: P1
