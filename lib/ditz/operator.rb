@@ -326,7 +326,7 @@ EOS
   def todo_list_for issues, opts={}
     return if issues.empty?
     name_len = issues.max_of { |i| i.name.length }
-    issues.map do |i|
+    issues.sort_by { |i| i.sort_order }.map do |i|
       s = sprintf "%s %#{name_len}s: %s", i.status_widget, i.name, i.title
       s += " [#{i.release}]" if opts[:show_release] && i.release
       s + "\n"
@@ -364,7 +364,7 @@ EOS
       puts r == :unassigned ? "Unassigned:" : "#{r.name} (#{r.status}):"
       issues = project.issues_for_release r
       issues = issues.select { |i| i.open? } unless full
-      puts(todo_list_for(issues.sort_by { |i| i.sort_order }) || "No open issues.")
+      puts(todo_list_for(issues) || "No open issues.")
       puts
     end
   end

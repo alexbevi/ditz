@@ -40,6 +40,7 @@ class Project < ModelObject
   field :version, :default => Ditz::VERSION, :ask => false
   field :components, :multi => true, :interactive_generator => :get_components
   field :releases, :multi => true, :ask => false
+  field :css, :default => "style.css", :ask=>false
 
   attr_accessor :pathname
 

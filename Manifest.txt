@@ -51,6 +51,7 @@ share/ditz/green-bar.png
 share/ditz/green-check.png
 share/ditz/index.rhtml
 share/ditz/issue.rhtml
+share/ditz/feed.rhtml
 share/ditz/issue_table.rhtml
 share/ditz/red-check.png
 share/ditz/release.rhtml

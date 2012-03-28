@@ -6,6 +6,8 @@ components:
   name: ditz
 - !ditz.rubyforge.org,2008-03-06/component 
   name: sheila
+- !ditz.rubyforge.org,2008-03-06/component 
+  name: issue-priority
 releases: 
 - !ditz.rubyforge.org,2008-03-06/release 
   name: "0.4"
@@ -42,3 +44,4 @@ releases:
     - William Morgan <wmorgan-ditz@masanjin.net>
     - created
     - ""
+devs: 

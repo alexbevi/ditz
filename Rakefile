@@ -23,12 +23,12 @@ end
 WWW_FILES = FileList["www/*"] + %w(README.txt PLUGINS.txt)
 
 task :upload_webpage => WWW_FILES do |t|
-  sh "rsync -essh -cavz #{t.prerequisites * ' '} wmorgan@rubyforge.org:/var/www/gforge-projects/ditz/"
+  sh "rsync -essh -cavz #{t.prerequisites * ' '} mattkatz@rubyforge.org:/var/www/gforge-projects/ditz/"
 end
 
 task :upload_report do |t|
   sh "ruby -Ilib bin/ditz html ditz"
-  sh "rsync -essh -cavz ditz wmorgan@rubyforge.org:/var/www/gforge-projects/ditz/"
+  sh "rsync -essh -cavz ditz mattkatz@rubyforge.org:/var/www/gforge-projects/ditz/"
 end
 
 task :plugins  do |t|
@@ -38,7 +38,7 @@ end
 task :really_check_manifest do |t|
   f1 = Tempfile.new "manifest"; f1.close
   f2 = Tempfile.new "manifest"; f2.close
-  sh "git ls-files | egrep -v \"^bugs/\" | sort > #{f1.path}"
+  sh "git ls-files | egrep -v \"^.ditz/\" | sort > #{f1.path}"
   sh "sort Manifest.txt > #{f2.path}"
 
   f3 = Tempfile.new "manifest"; f3.close

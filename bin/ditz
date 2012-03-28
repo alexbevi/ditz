@@ -9,11 +9,6 @@ $LOAD_PATH.unshift(File.expand_path("#{File.dirname($0)}/../lib"))
 require 'ditz/operator'
 op = Ditz::Operator.new
 
-## a secret option for shell completion
-if ARGV.include? '--commands'
-  puts op.class.operations.map { |name, _| name }
-  exit
-end
 
 begin
   require 'rubygems'
@@ -50,6 +45,7 @@ EOS
   opt :verbose, "Verbose output", :default => false
   opt :list_hooks, "Print all hooks exit", :short => 'l', :default => false
   opt :version, "Print version and exit", :short => :none
+  opt :commands, "Print list of commands (used for completion", :short => :none
   stop_on_unknown
 end
 $verbose = true if $opts[:verbose]
@@ -97,6 +93,12 @@ begin
   Ditz::load_plugins $opts[:plugins_file] if File.exist? $opts[:plugins_file]
 rescue LoadError => e
   Ditz::debug "can't load plugins file: #{e.message}"
+end
+
+## a secret option for shell completion
+if $opts[:commands]
+  puts op.class.operations.map { |name, _| name }
+  exit
 end
 
 ## prevent ctrl-c and borken pipes from printing a useless backtrace
